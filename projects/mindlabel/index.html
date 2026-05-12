@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindLabel &middot; Driving Data Engine</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --accent:#0891b2;
+    --accent-soft:#ecfeff;
+    --ink:#1e293b;
+    --muted:#64748b;
+  }
+  html,body{background:#fff;color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-feature-settings:"cv02","cv03","cv04","cv11"}
+
+  .hero.is-light{background:#fafafa}
+  .publication-title{font-weight:800;letter-spacing:-0.02em;
+    font-size:2.4rem;line-height:1.15;margin-bottom:0.6rem}
+  .subtitle-line{color:#475569;font-size:1.05rem;margin-top:0.2rem}
+
+  h2.title.is-3{font-weight:700;letter-spacing:-0.01em;margin-bottom:0.9rem}
+  .sec-caption{font-size:1.02rem;color:#334155;line-height:1.6;
+    text-align:justify;max-width:1080px;margin:0 auto 1rem}
+  .sec-caption .hl{font-weight:700;color:var(--accent)}
+
+  /* ── Pipeline + example ─────────────────────── */
+  .ml-row{display:grid;grid-template-columns:1.0fr 0.95fr;gap:18px;
+    max-width:1100px;margin:0 auto}
+  .ml-row .cell{background:#fff;border:1px solid #e5e7eb;border-radius:8px;
+    padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .ml-row .cell img{width:100%;height:auto;display:block;border-radius:4px}
+  .ml-row .cell .cap{margin-top:0.5rem;font-size:0.88rem;color:#475569;
+    text-align:center;line-height:1.5}
+  @media (max-width:900px){.ml-row{grid-template-columns:1fr}}
+
+  /* ── Scene gallery ──────────────────────────── */
+  .scene-frame{max-width:1080px;margin:0 auto}
+  .scene-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;
+    padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);margin-bottom:18px}
+  .scene-card h4{font-size:0.95rem;font-weight:700;color:#1e293b;
+    margin-bottom:0.55rem}
+  .scene-card .scene-img-main{width:100%;display:block;border-radius:6px;
+    border:1px solid #e5e7eb}
+  .scene-card .scene-bev{width:55%;display:block;margin:10px auto 0;
+    border-radius:6px;border:1px solid #e5e7eb}
+  .scene-card .scene-duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;
+    margin-top:10px}
+  .scene-card .scene-duo img{width:100%;display:block;border-radius:6px;
+    border:1px solid #e5e7eb}
+  .fig-caption{font-size:0.95rem;color:#475569;line-height:1.5;font-style:italic;
+    text-align:center;margin-top:0.6rem;max-width:1000px;margin-left:auto;margin-right:auto}
+  .fig-caption b{color:var(--ink)}
+
+  /* ── Scene C (rolling video) ────────────────── */
+  .vid-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .vid-head .title-sm{font-weight:700;color:var(--ink);font-size:1.0rem}
+  .vid-head .frame-cnt{margin-left:auto;color:var(--accent);font-size:0.88rem;
+    font-family:ui-monospace,'SF Mono',Consolas,monospace;font-weight:600}
+  .scene-card .scene-vid{width:100%;display:block;border-radius:6px;
+    border:1px solid #e5e7eb;background:#fafafa}
+
+  .meta-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
+    margin-top:12px}
+  .meta-pill{background:#fff;border:1px solid #e5e7eb;border-radius:8px;
+    padding:10px 12px;text-align:center}
+  .meta-pill .mlabel{font-family:ui-monospace,'SF Mono',Consolas,monospace;
+    font-size:0.7rem;color:var(--muted);letter-spacing:.1em;
+    text-transform:uppercase;margin-bottom:4px}
+  .meta-pill .mval{font-weight:700;font-size:1.02rem;color:var(--ink)}
+  .meta-pill.lat{background:#fef3c7;border-color:#fde68a}
+  .meta-pill.lon{background:#ecfdf5;border-color:#a7f3d0}
+  .meta-pill.int{background:#ecfeff;border-color:#a5f3fc}
+  .meta-pill.int .mval{color:var(--accent)}
+
+  .cot-hd-sec{font-weight:700;font-size:1.0rem;color:var(--ink);
+    margin:14px 0 10px}
+  .cot-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:720px){.cot-grid{grid-template-columns:1fr}}
+  .cot-item{padding:10px 12px;background:#f8fafc;
+    border-left:3px solid var(--accent);border-radius:6px}
+  .cot-item .cot-hd{font-weight:700;color:var(--accent);font-size:0.88rem;
+    letter-spacing:.01em;margin-bottom:3px}
+  .cot-item .cot-tx{font-size:0.94rem;color:#334155;line-height:1.55}
+
+  .qa-hd{font-weight:700;font-size:1.0rem;color:var(--ink);
+    margin:14px 0 10px}
+  .qa-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:720px){.qa-list{grid-template-columns:1fr}}
+  .qa-card{border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;
+    background:#fff}
+  .qa-card .qa-tags{display:flex;gap:6px;margin-bottom:5px;flex-wrap:wrap}
+  .qa-card .qa-tag{display:inline-block;font-family:ui-monospace,'SF Mono',Consolas,monospace;
+    font-size:0.68rem;font-weight:700;letter-spacing:.08em;
+    padding:2px 8px;border-radius:4px;text-transform:uppercase}
+  .qa-card .qa-tag.cat-common  {background:#dbeafe;color:#1d4ed8}
+  .qa-card .qa-tag.cat-spatial {background:#e0f2fe;color:#0369a1}
+  .qa-card .qa-tag.cat-temporal{background:#fef3c7;color:#b45309}
+  .qa-card .qa-tag.cat-motion  {background:#fce7f3;color:#be185d}
+  .qa-card .qa-tag.cat-object  {background:#ede9fe;color:#6d28d9}
+  .qa-card .qa-q{font-weight:600;font-size:0.92rem;color:var(--ink);
+    line-height:1.45;margin-bottom:4px}
+  .qa-card .qa-a{font-size:0.88rem;color:#475569;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero is-light">
+  <div class="hero-body" style="padding:2.2rem 1.5rem 1.6rem">
+    <div class="container is-max-desktop has-text-centered">
+      <h1 class="publication-title">MindLabel &mdash; Auto-Labeled VLA Co-Training Data</h1>
+      <p class="subtitle-line">Shared annotation pipeline for the Mind-Omni family.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PIPELINE OVERVIEW ═══════════════ -->
+<section class="section" style="padding:2rem 1.5rem 1.2rem">
+  <div class="container is-max-desktop">
+    <p class="sec-caption">
+      An auto-labeling pipeline run on WOD-E2E frames with two parallel branches &mdash;
+      <b>Scene Understanding</b> VQA (Common &middot; Spatial &middot; Temporal &middot; Motion
+      &middot; Object-Centric) and <b>Action Dreaming</b> (intent-conditioned trajectory
+      synthesis with affordance / exemplar guidance + trajectory-evaluation QA) &mdash;
+      feeding a unified answer-generation module. Main results consume only the basic VQA
+      + 3-class GT intent; the richer outputs are released for the community.
+    </p>
+
+    <div class="ml-row">
+      <div class="cell">
+        <img src="figs/MindLabel1.png" alt="MindLabel pipeline overview">
+        <div class="cap">
+          <b>Pipeline.</b> Scene Understanding QA generation and Action Dreaming
+          run in parallel; a unified answer module handles category-specific
+          generation.
+        </div>
+      </div>
+      <div class="cell">
+        <img src="figs/MindLabel2.png" alt="MindLabel example annotations">
+        <div class="cap">
+          <b>Example.</b> One frame, multiple QA categories plus four
+          intent-conditioned dreamed trajectory variants
+          (Better / Alternative / Conservative / Worse).
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SCENE GALLERY ═══════════════ -->
+<section class="section" style="padding:0.6rem 1.5rem 2.4rem">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Scene Gallery</h2>
+
+    <div class="scene-frame">
+
+      <!-- ── Scene A — daytime urban ── -->
+      <div class="scene-card">
+        <h4>Scene A &mdash; Daytime urban</h4>
+        <img class="scene-img-main"
+             src="figs/scene-a-rgb.png"
+             alt="Scene A — front-camera panorama with dreamed trajectories">
+        <img class="scene-bev"
+             src="figs/scene-a-bev.png"
+             alt="Scene A — BEV view with dreamed trajectories">
+      </div>
+
+      <!-- ── Scene B — nighttime intersection ── -->
+      <div class="scene-card">
+        <h4>Scene B &mdash; Nighttime intersection</h4>
+        <img class="scene-img-main"
+             src="figs/scene-b-rgb.png"
+             alt="Scene B — front-camera panorama with dreamed trajectories">
+        <div class="scene-duo">
+          <img src="figs/scene-b-bev.png"
+               alt="Scene B — BEV view">
+          <img src="figs/scene-b-objects.png"
+               alt="Scene B — object-centric annotations">
+        </div>
+      </div>
+
+      <!-- ── Scene C — rolling past-video + full annotation stack ── -->
+      <div class="scene-card">
+        <h4>Scene C &mdash; Rolling past video (full annotation stack)</h4>
+
+        <div class="vid-head">
+          <span class="title-sm">Past-video input (8 frames, 2 Hz)</span>
+          <span class="frame-cnt" id="ml-f">1/8</span>
+        </div>
+        <img class="scene-vid" id="ml-img"
+             alt="Past-video frame (auto-rolling)"/>
+
+        <!-- Rule-labelled meta actions + intent -->
+        <div class="meta-row">
+          <div class="meta-pill lat">
+            <div class="mlabel">Lat. meta</div>
+            <div class="mval">steer_left</div>
+          </div>
+          <div class="meta-pill lon">
+            <div class="mlabel">Long. meta</div>
+            <div class="mval">decelerate</div>
+          </div>
+          <div class="meta-pill int">
+            <div class="mlabel">Intent</div>
+            <div class="mval">turning_left</div>
+          </div>
+        </div>
+
+        <!-- 4-step CoT -->
+        <div class="cot-hd-sec">4-step chain-of-thought</div>
+        <div class="cot-grid">
+          <div class="cot-item">
+            <div class="cot-hd">① Perceive</div>
+            <div class="cot-tx">
+              The ego vehicle is approaching a T-intersection in a residential
+              area. A white sedan is parked on the left side of the road,
+              approximately 15 m ahead, partially narrowing the available lane
+              width. The road ahead curves to the left with parked cars on
+              both sides of the street.
+            </div>
+          </div>
+          <div class="cot-item">
+            <div class="cot-hd">② Predict</div>
+            <div class="cot-tx">
+              The white sedan remains stationary. The road geometry requires
+              a leftward trajectory change to navigate the curve and
+              intersection safely. No oncoming traffic is immediately visible
+              in the intersection.
+            </div>
+          </div>
+          <div class="cot-item">
+            <div class="cot-hd">③ Judge</div>
+            <div class="cot-tx">
+              The path is partially blocked by the parked car and the upcoming
+              curve. A leftward steering maneuver is necessary to maintain safe
+              clearance and follow the road curvature. Risk level:
+              <em>Low to Medium</em>.
+            </div>
+          </div>
+          <div class="cot-item">
+            <div class="cot-hd">④ Plan</div>
+            <div class="cot-tx">
+              (1) Decelerate to reduce speed for safe maneuvering around the
+              parked vehicle and curve. (2) Steer left to navigate the road
+              curvature and avoid the parked sedan. (3) Monitor the
+              intersection for any emerging cross-traffic or pedestrians.
+            </div>
+          </div>
+        </div>
+
+        <!-- QA samples -->
+        <div class="qa-hd">Sampled QA pairs <span style="color:var(--muted);font-weight:500;font-size:0.9rem">(one per category)</span></div>
+        <div class="qa-list">
+          <div class="qa-card">
+            <div class="qa-tags"><span class="qa-tag cat-common">Common</span></div>
+            <div class="qa-q">What is the text written on the street sign at the intersection corner?</div>
+            <div class="qa-a">'AVON' on the top line and 'SHAWNEE' on the bottom &mdash; clearly legible in the FRONT_RIGHT view, near panorama coordinates (742, 478).</div>
+          </div>
+          <div class="qa-card">
+            <div class="qa-tags"><span class="qa-tag cat-spatial">Spatial</span></div>
+            <div class="qa-q">Is the ego vehicle positioned in the left lane or the right lane of the two-lane road?</div>
+            <div class="qa-a">The right lane &mdash; centred within the rightmost lane, with a clear lane boundary on the right and parked cars along the left curb.</div>
+          </div>
+          <div class="qa-card">
+            <div class="qa-tags"><span class="qa-tag cat-temporal">Temporal</span></div>
+            <div class="qa-q">Did the relative distance between the ego vehicle and the white sedan ahead change over time?</div>
+            <div class="qa-a">No. The white sedan is parked on the right side and remains stationary throughout the 4-second clip, so its distance change mirrors the ego's own forward motion.</div>
+          </div>
+          <div class="qa-card">
+            <div class="qa-tags"><span class="qa-tag cat-motion">Motion</span></div>
+            <div class="qa-q">Based on the current state of the vehicle directly ahead, is it likely to remain stationary or begin moving in the next few seconds?</div>
+            <div class="qa-a">Stationary. Across all 8 frames the silver sedan on the left and the red sedan behind it show no sign of movement, indicating they are parked.</div>
+          </div>
+          <div class="qa-card">
+            <div class="qa-tags"><span class="qa-tag cat-object">Object-Centric</span></div>
+            <div class="qa-q">Where is the corner house with stucco and red tile roof located in the scene?</div>
+            <div class="qa-a">Far-left of the stitched panorama, visible in the SIDE_LEFT view; its centre is at approximately (85, 450) in global stitched coordinates.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="fig-caption">
+      <b>MindLabel annotations on real WOD-E2E frames.</b>
+      <em>Scene&nbsp;A</em> &mdash; daytime urban: front-camera panorama with
+      dreamed trajectories overlaid (four AFF candidates A&ndash;D together with
+      the GT future, color-coded by RFS quality) and the corresponding BEV view.
+      <em>Scene&nbsp;B</em> &mdash; nighttime intersection: the same trajectory
+      overlay plus the Object-Centric annotation pass (25 bounding boxes, 11
+      foreground / 14 background, each grounded by a natural-language descriptor
+      e.g.&nbsp;<em>&ldquo;the car in front&rdquo;</em>,
+      <em>&ldquo;intersection right corner&rdquo;</em>).
+      <em>Scene&nbsp;C</em> &mdash; rolling past-video input (8 frames, 2 Hz) shown with its
+      full annotation stack: rule-labelled lateral/longitudinal meta-actions and
+      the derived driving intent, the 4-step Perceive/Predict/Judge/Plan CoT, and
+      one sampled QA pair per Scene-Understanding category.
+    </p>
+  </div>
+</section>
+
+<script>
+  // ── Auto-rolling past-video player (pattern matches StreamingIntent page) ──
+  const FRAMES = [
+    'figs/example/frames/frame_000013.jpg',
+    'figs/example/frames/frame_000018.jpg',
+    'figs/example/frames/frame_000023.jpg',
+    'figs/example/frames/frame_000028.jpg',
+    'figs/example/frames/frame_000033.jpg',
+    'figs/example/frames/frame_000038.jpg',
+    'figs/example/frames/frame_000043.jpg',
+    'figs/example/frames/frame_000048.jpg',
+  ];
+  const FPS = 2;   /* 2 Hz — the annotation sampling rate */
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const imgEl   = document.getElementById('ml-img');
+    const frameEl = document.getElementById('ml-f');
+    const N = FRAMES.length;
+    FRAMES.forEach(src => { const i = new Image(); i.src = src; });
+    let idx = 0;
+    const render = () => {
+      imgEl.src = FRAMES[idx];
+      frameEl.textContent = `${idx+1}/${N}`;
+      idx = (idx + 1) % N;
+    };
+    render();
+    setInterval(render, 1000 / FPS);
+  });
+</script>
+
+</body>
+</html>

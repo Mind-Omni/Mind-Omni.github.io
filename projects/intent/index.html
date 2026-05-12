@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Action Emergence from Streaming Intent</title>
+
+<!-- Bulma + Font Awesome from CDN (no local static/ folder required) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --accent:#2563eb;
+    --accent-soft:#e8efff;
+    --accent2:#059669;        /* streaming intent highlight */
+    --accent3:#d97706;        /* frame step / rolling emphasis */
+    --ink:#1e293b;
+    --muted:#64748b;
+  }
+  html,body{background:#fff;color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-feature-settings:"cv02","cv03","cv04","cv11"}
+
+  /* ── Hero / title ─────────────────────────────── */
+  .hero.is-light{background:#fafafa}
+  .publication-title{font-weight:800;letter-spacing:-0.02em;
+    font-size:2.6rem;line-height:1.15;margin-bottom:1rem}
+  .tagline{max-width:1170px;margin:1.8rem auto 0;font-size:1.1rem;
+    line-height:1.55;color:#334155;font-style:italic;
+    padding:16px 20px;border-radius:10px;background:#f1f5f9;
+    border-left:4px solid var(--accent);
+    text-align:center}
+  .tagline .hl{font-weight:700;color:var(--accent)}
+  .tagline .hl-warn{font-weight:700;color:#dc2626}
+  .publication-authors{font-size:1.05rem;margin-top:0.25rem;color:#334155}
+  .publication-authors .author-block{margin:0 0.35rem}
+  .publication-authors a{color:var(--accent)}
+  .affil{color:var(--muted);font-size:0.95rem;margin-top:0.6rem}
+  .publication-links{margin-top:1.6rem}
+  .publication-links .link-block{margin:0 0.25rem}
+  .button.is-rounded.is-dark{background:#0f172a;border-color:#0f172a}
+  .button.is-rounded.is-dark:hover{background:#1e293b;border-color:#1e293b}
+
+  /* ── Section typography ───────────────────────── */
+  h2.title.is-3{font-weight:700;letter-spacing:-0.01em;margin-bottom:1rem}
+  .sec-caption{font-size:1.05rem;color:#334155;line-height:1.65;
+    text-align:justify;max-width:1170px;margin:0 auto 1.4rem;
+    padding-left:8px;padding-right:8px}
+  .sec-caption a{color:var(--accent);font-weight:500}
+  .fig-caption{font-size:1.0rem;color:#475569;line-height:1.55;font-style:italic;
+    text-align:center;margin-top:0.9rem;max-width:1000px;margin-left:auto;margin-right:auto}
+  .fig-caption strong{color:var(--ink);font-weight:600}
+
+  .legend{display:inline-block;padding:3px 10px;border-radius:999px;
+    font-size:0.9rem;font-weight:600;margin:0 4px}
+  .legend.ours{background:#e8efff;color:var(--accent)}
+  .legend.rap{background:#fdf4ff;color:#a21caf}
+
+  /* ── Figure frames ────────────────────────────── */
+  .figure-frame img{width:100%;height:auto;display:block;border-radius:8px;
+    border:1px solid #e5e7eb;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+
+  /* ── Action-emergence 3-column grid ───────────── */
+  .ae-row{display:grid;grid-template-columns:1fr 1fr 0.82fr;gap:16px;
+    align-items:center;margin-bottom:18px}
+  .ae-head{display:grid;grid-template-columns:1fr 1fr 0.82fr;gap:16px;
+    margin-bottom:12px}
+  .ae-head .ae-col{text-align:center;font-weight:600;font-size:1.05rem;
+    color:var(--ink);padding:8px 0;letter-spacing:.005em}
+  .ae-head .ae-col .pill{display:inline-block;margin-left:6px;
+    padding:2px 10px;font-size:0.82rem;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .ae-head .ae-col .pill.warn{background:#fdf4ff;color:#a21caf}
+
+  /* ── Multi-intent 3-column row ────────────────── */
+  .mi-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+
+  /* ── Planning tables (side by side) ───────────── */
+  .tbl-pair{display:grid;grid-template-columns:1fr 1fr;gap:24px;
+    max-width:1100px;margin:0 auto}
+  .tbl-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;
+    padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .tbl-card .tbl-title{font-weight:700;font-size:1.0rem;color:var(--ink);
+    text-align:center;margin-bottom:10px}
+  .tbl-card table{width:100%;border-collapse:collapse;font-size:0.95rem}
+  .tbl-card th,.tbl-card td{padding:7px 10px;text-align:left}
+  .tbl-card th{font-weight:700;color:var(--ink);border-bottom:2px solid #1e293b}
+  .tbl-card tr td{border-bottom:1px solid #eef0f3}
+  .tbl-card tr.ours td{background:#e8efff;font-weight:700;color:var(--accent)}
+  .tbl-card td.num,.tbl-card th.num{text-align:center}
+  @media (max-width:900px){.tbl-pair{grid-template-columns:1fr}}
+
+  /* ── Streaming consistency autoplay ───────────── */
+  .sc-stack{display:flex;flex-direction:column;gap:28px;margin-top:8px}
+  .sc-case{background:#fff;border:1px solid #e5e7eb;border-radius:12px;
+    padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+  .sc-case .header{display:flex;align-items:center;gap:12px;margin-bottom:14px;
+    padding-bottom:12px;border-bottom:1px solid #eef0f3;flex-wrap:wrap}
+  .sc-case .badge{display:inline-block;padding:3px 12px;background:var(--accent);
+    color:#fff;border-radius:999px;font-size:0.85rem;font-weight:600}
+  .sc-case .title-sm{font-size:1.05rem;color:var(--ink);font-weight:600}
+  .sc-case .frame-cnt{margin-left:auto;color:var(--accent);font-size:0.9rem;
+    font-family:ui-monospace,'SF Mono',Consolas,monospace;font-weight:600}
+  .sc-case img{width:100%;height:auto;display:block;border-radius:8px;
+    background:#fff;border:1px solid #e5e7eb}
+  .sc-case .frame-desc{margin-top:14px;padding:14px 18px;border-radius:8px;
+    background:#dbeafe;border-left:4px solid var(--accent);
+    font-size:1.15rem;font-weight:500;color:#1e3a8a;line-height:1.5;
+    font-family:'Inter',sans-serif;
+    transition:all .25s ease-in-out}
+  .sc-case .frame-desc .step-num{color:#1e40af;font-weight:700;
+    margin-right:10px}
+  .sc-case .frame-desc .intent{color:var(--accent2);font-weight:800;
+    letter-spacing:.005em}
+
+  /* ── BibTeX block ─────────────────────────────── */
+  pre code{font-size:0.9rem;line-height:1.55}
+
+  /* Wider max-width for image sections */
+  .container.is-max-wider{max-width:1170px;margin-left:auto;margin-right:auto;
+    padding-left:24px;padding-right:24px}
+
+  /* Mobile adjustments */
+  @media (max-width:900px){
+    .ae-row,.ae-head{grid-template-columns:1fr}
+    .mi-row{grid-template-columns:1fr}
+    .publication-title{font-size:2rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO / TITLE ═══════════════ -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-wider">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+
+          <h1 class="title publication-title">Action Emergence from Streaming Intent</h1>
+
+          <div class="publication-authors is-size-5">
+            <span class="author-block"><a href="https://openreview.net/profile?id=%7EPengfei_Jing1" target="_blank" rel="noopener">Pengfei Jing</a><sup>1,2*</sup>,</span>
+            <span class="author-block"><a href="https://jeixhuang.github.io/" target="_blank" rel="noopener">Victor Shea-Jay Huang</a><sup>1,3</sup>,</span>
+            <span class="author-block"><a href="https://scholar.google.com/citations?view_op=list_works&hl=zh-CN&hl=zh-CN&user=FNn8RlIAAAAJ" target="_blank" rel="noopener">Hengtong Lu</a><sup>1</sup>,</span>
+            <span class="author-block"><a href="https://jifengdai.org/" target="_blank" rel="noopener">Jifeng Dai</a><sup>2</sup>,</span>
+            <span class="author-block"><a href="https://ir.lixiang.com/management/yan-xie/" target="_blank" rel="noopener">Xie Yan</a><sup>1</sup>,</span>
+            <span class="author-block"><a href="https://benjin.me/" target="_blank" rel="noopener">Benjin Zhu</a><sup>1,2*&dagger;</sup></span>
+          </div>
+
+          <div class="affil is-size-6">
+            <sup>1</sup>Li Auto&nbsp;&nbsp;·&nbsp;&nbsp;
+            <sup>2</sup>Tsinghua University&nbsp;&nbsp;·&nbsp;&nbsp;
+            <sup>3</sup>CUHK<br>
+            <small><sup>*</sup>Equal contribution&nbsp;&nbsp;<sup>&dagger;</sup>Corresponding author</small>
+          </div>
+
+          <div class="publication-links">
+            <span class="link-block">
+              <a href="#" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                <span>Paper</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="#" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="fas fa-archive"></i></span>
+                <span>arXiv</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="#" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="fab fa-github"></i></span>
+                <span>Code</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="#BibTeX" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="fas fa-quote-left"></i></span>
+                <span>BibTeX</span>
+              </a>
+            </span>
+          </div>
+
+          <!-- Tagline moved here: AFTER the Paper/arXiv/Code/BibTeX buttons, BEFORE Abstract -->
+          <p class="tagline">
+            The first driving VLA to achieve
+            <span class="hl">intent-faithful trajectory control</span>
+            &mdash; purely data-driven, with
+            <span class="hl-warn">NO pre-sampled action banks</span>
+            and
+            <span class="hl-warn">NO post-hoc selection modules</span>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ABSTRACT ═══════════════ -->
+<section class="section hero is-light">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Abstract</h2>
+    <div class="content">
+      <p class="sec-caption">
+        We formalize <strong>action emergence</strong> &mdash; a driving
+        agent's capability to produce physically feasible, semantically
+        appropriate, and safety-compliant actions in arbitrary scenes through
+        on-the-fly reasoning, rather than retrieval or interpolation of
+        learned scene&ndash;action mappings &mdash; as the missing capability
+        behind long-tail failures of end-to-end driving.  Prior autoregressive
+        decoders collapse the multimodal future; diffusion / flow-matching
+        models express multimodality but are not steerable by reasoned intent;
+        existing VLA designs leave language and action structurally
+        disconnected.  We propose <strong>Streaming Intent (SI)</strong>
+        &mdash; a single-backbone VLA in which an AR-decoded intent token
+        drives classifier-free guidance on a shared flow-matching action head.
+      </p>
+    </div>
+
+    <div class="figure-frame" style="max-width:1170px;margin:0 auto">
+      <img src="figs/fig.1.comparison.jpg"
+           alt="Trajectory diversity comparison across paradigms">
+      <p class="fig-caption">
+        AR models collapse to an averaged future; diffusion / FM models sample
+        a narrow prior-dominated bundle; <strong>SI</strong> produces
+        intent-faithful trajectories with distinct geometry and speed
+        profiles.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ METHOD ═══════════════ -->
+<section class="section">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Method</h2>
+    <p class="sec-caption">
+      A single Qwen3-VL backbone jointly supports AR CoT/intent decoding and
+      FM intent-guided trajectory denoising.  The AR half emits a four-step
+      chain-of-thought (<em>Perceive &rarr; Predict &rarr; Judge &rarr;
+      Plan</em>) terminated by
+      <code>&lt;INTENT&gt;intent_name&lt;/INTENT&gt;</code>; an intent bridge
+      parses <i>intent_name</i> into a 20-class index that conditions the FM
+      half via classifier-free guidance.  <strong>Streaming Intent</strong>
+      runs along two axes: <em>semantic streaming</em> &mdash; intent is the
+      causal continuation of the CoT &mdash; and <em>temporal streaming</em>
+      &mdash; a compact prev-intent memory token is carried across clips so
+      commitments stay coherent along the driving horizon.
+    </p>
+
+    <div class="figure-frame" style="max-width:1170px;margin:0 auto">
+      <img src="figs/fig.2.Streaming_final.final.png"
+           alt="SI architecture">
+      <p class="fig-caption">
+        Streaming Intent: One single backbone for CoT Reasoning and intent-guided action generation.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CASE 1 · ACTION EMERGENCE ═══════════════ -->
+<section class="section hero is-light">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Action Emergence on Long-Tail Scenes</h2>
+    <p class="sec-caption">
+      We compare our action-emergence capability against the SOTA end-to-end
+      driving model&nbsp;<a href="https://alan-lanfeng.github.io/RAP/" target="_blank">RAP</a>.
+      In each image, the
+      <span class="legend ours">colorful trajectories</span> are SI's
+      multi-intent predictions, while the
+      <span class="legend rap">purple dashed trajectories</span> are
+      RAP's proposals.
+      Compared to SI, RAP's trajectories collapse into a single mode
+      &mdash; a tight beam of proposals all centred on one direction
+      (e.g.\ all turning left or all going straight) &mdash; whereas SI
+      retains intent-faithful control across every commanded intent.
+    </p>
+
+    <div class="ae-head">
+      <div class="ae-col">Ours (SI) <span class="pill">Action Emergence</span></div>
+      <div class="ae-col">Previous Method (RAP) <span class="pill warn">Mode Collapse</span></div>
+      <div class="ae-col">BEV Comparison</div>
+    </div>
+
+    <div class="ae-row">
+      <div class="figure-frame"><img src="figs/StreamingIntent_cases/rap_compare_1/1_front_onlySI.png"  alt="SI scene 1"></div>
+      <div class="figure-frame"><img src="figs/StreamingIntent_cases/rap_compare_1/1_front_onlyRAP.png" alt="RAP scene 1"></div>
+      <div class="figure-frame"><img src="figs/StreamingIntent_cases/rap_compare_1/1_bev_LeftSide.png"  alt="BEV scene 1"></div>
+    </div>
+
+    <div class="ae-row">
+      <div class="figure-frame"><img src="figs/StreamingIntent_cases/rap_compare_1/3_front_onlySI.png"  alt="SI scene 2"></div>
+      <div class="figure-frame"><img src="figs/StreamingIntent_cases/rap_compare_1/3_front_onlyRAP.png" alt="RAP scene 2"></div>
+      <div class="figure-frame"><img src="figs/StreamingIntent_cases/rap_compare_1/3_bev_LeftSide.png"  alt="BEV scene 2"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CASE 2 · HIGH QUALITY MULTI-INTENT ═══════════════ -->
+<section class="section">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">High Quality Multi-Intent Trajectory</h2>
+    <p class="sec-caption">
+      On the Waymo E2E RFS validation set (three human-rated alternatives
+      per scene in addition to the GT), SI's GT-intent trajectory matches
+      the GT, while its other-intent trajectories align with the
+      geometrically distinct RFS alternatives &mdash; evidence that the
+      intent-driven diversity is <em>high-quality coverage</em> of the
+      human-rated action repertoire rather than random variance.
+    </p>
+
+    <div class="mi-row">
+      <div class="figure-frame"><img src="figs/StreamingIntent_cases/rfs_multi-intent_check/1_front.png" alt="RFS check scene 1"></div>
+      <div class="figure-frame"><img src="figs/StreamingIntent_cases/rfs_multi-intent_check/2_front.png" alt="RFS check scene 2"></div>
+      <div class="figure-frame"><img src="figs/StreamingIntent_cases/rfs_multi-intent_check/3_front.png" alt="RFS check scene 3"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CASE 3 · STREAMING CONSISTENCY ═══════════════ -->
+<section class="section hero is-light">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Streaming Intent Consistency in Long Horizon Inference</h2>
+    <p class="sec-caption">
+      Three multi-clip episodes, each rendered as an auto-playing
+      frame-by-frame sequence.  Per-clip intent commitments evolve smoothly
+      with the scene, driven by <strong>Streaming Intent</strong>.  Each
+      frame shows SI's full 4-step CoT and decoded intent on top of the
+      front-3 view, with the predicted trajectory overlaid against GT.
+      The highlighted line below each video announces the current intent as
+      frames roll.
+    </p>
+
+    <div class="sc-stack">
+
+      <div class="sc-case" id="sc1">
+        <div class="header">
+          <span class="badge">Case 1</span>
+          <span class="title-sm">Pedestrian-crossroad episode</span>
+          <span class="frame-cnt" id="f1">1/5</span>
+        </div>
+        <img id="img1" alt="Case 1 frame">
+        <div class="frame-desc" id="desc1">&nbsp;</div>
+      </div>
+
+      <div class="sc-case" id="sc2">
+        <div class="header">
+          <span class="badge">Case 2</span>
+          <span class="title-sm">Oncoming-traffic + open-door van episode</span>
+          <span class="frame-cnt" id="f2">1/6</span>
+        </div>
+        <img id="img2" alt="Case 2 frame">
+        <div class="frame-desc" id="desc2">&nbsp;</div>
+      </div>
+
+      <div class="sc-case" id="sc3">
+        <div class="header">
+          <span class="badge">Case 3</span>
+          <span class="title-sm">Open-door car + oncoming bus episode</span>
+          <span class="frame-cnt" id="f3">1/4</span>
+        </div>
+        <img id="img3" alt="Case 3 frame">
+        <div class="frame-desc" id="desc3">&nbsp;</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ QUANTITATIVE RESULTS ═══════════════ -->
+<section class="section">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Planning Performance on Waymo E2E Benchmark</h2>
+    <p class="sec-caption">
+      On the
+      <a href="https://waymo.com/open/challenges/2025/e2e-driving/" target="_blank">
+      Waymo Open Dataset End-to-End (WOD-E2E) long-tail benchmark</a>,
+      SI achieves high scores and ranks among the top on the leaderboard on <strong>both</strong> the
+      validation split (RFS <strong>7.96</strong>, improving on the strongest
+      prior baseline RAP at 7.91 by +0.05) and the test leaderboard
+      (RFS <strong>7.74</strong>, ADE <strong>1.24</strong>&nbsp;m /
+      <strong>2.81</strong>&nbsp;m at the 3&nbsp;s / 5&nbsp;s horizons),
+      confirming that the qualitative action-emergence behaviour translates
+      directly into aggregate planning quality.
+    </p>
+
+    <div class="tbl-pair">
+      <!-- Val -->
+      <div class="tbl-card">
+        <div class="tbl-title">WOD-E2E Val Split</div>
+        <table>
+          <thead>
+            <tr><th>Method</th><th class="num">RFS&nbsp;&uarr;</th><th class="num">TR (%)&nbsp;&uarr;</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>WAM-Flow</td>    <td class="num">5.17</td><td class="num">14.0</td></tr>
+            <tr><td>Curious-VLA</td> <td class="num">5.81</td><td class="num">30.0</td></tr>
+            <tr><td>AutoVLA</td>     <td class="num">6.74</td><td class="num">46.0</td></tr>
+            <tr><td>RecogDrive</td>  <td class="num">7.40</td><td class="num">58.0</td></tr>
+            <tr><td>RAP</td>         <td class="num">7.91</td><td class="num"><strong>70.7</strong></td></tr>
+            <tr class="ours"><td>SI (ours)</td><td class="num">7.96</td><td class="num">63.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Test -->
+      <div class="tbl-card">
+        <div class="tbl-title">WOD-E2E Test Split</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th class="num">RFS&nbsp;&uarr;</th>
+              <th class="num">ADE&nbsp;3s&nbsp;&darr;</th>
+              <th class="num">ADE&nbsp;5s&nbsp;&darr;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Open-LLaMA</td> <td class="num">7.43</td><td class="num">1.31</td><td class="num">3.22</td></tr>
+            <tr><td>NaiveEMMA</td>  <td class="num">7.53</td><td class="num">1.32</td><td class="num">3.02</td></tr>
+            <tr><td>AutoVLA</td>    <td class="num">7.56</td><td class="num">1.35</td><td class="num">2.96</td></tr>
+            <tr><td>dVLM-AD</td>    <td class="num">7.63</td><td class="num">1.29</td><td class="num">3.02</td></tr>
+            <tr><td>HMVLM</td>      <td class="num">7.74</td><td class="num">1.33</td><td class="num">3.07</td></tr>
+            <tr class="ours"><td>SI (ours)</td><td class="num">7.74</td><td class="num">1.24</td><td class="num">2.81</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ BIBTEX ═══════════════ -->
+<section class="section hero is-light" id="BibTeX">
+  <div class="container is-max-wider content">
+    <h2 class="title">BibTeX</h2>
+<pre><code>@misc{jing2026streamingintent,
+      title         = {Action Emergence from Streaming Intent},
+      author        = {Pengfei Jing and Victor Shea-Jay Huang and Hengtong Lu
+                       and Jifeng Dai and Xie Yan and Benjin Zhu},
+      year          = {2026},
+      eprint        = {XXXX.XXXXX},
+      archivePrefix = {arXiv},
+      primaryClass  = {cs.CV}
+}</code></pre>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="footer" style="background:#fafafa;padding:2rem 1.5rem">
+  <div class="container has-text-centered">
+    <p class="is-size-7" style="color:var(--muted)">
+      Project page built with <a href="https://bulma.io" target="_blank">Bulma</a>.
+      Template adapted from the
+      <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">
+      Academic Project Page Template</a>.
+    </p>
+  </div>
+</footer>
+
+<!-- ═══════════════ STREAMING AUTO-PLAYERS ═══════════════ -->
+<script>
+const BASE = "figs/StreamingIntent_cases/StreamingIntent";
+const cases = [
+  {
+    imgId: "img1", frameId: "f1", descId: "desc1", fps: 0.7,
+    frames: [
+      `${BASE}/0p13_wide.png`,
+      `${BASE}/0p43_wide.png`,
+      `${BASE}/0p63_wide.png`,
+      `${BASE}/1p18_wide.png`,
+      `${BASE}/1p43_wide.png`,
+    ],
+    // {intent, rest} — the `intent` word is colour-highlighted on render.
+    descriptions: [
+      { intent: "Stopping",     rest: " at intersection." },
+      { intent: "Waiting",      rest: " for pedestrian crossing." },
+      { intent: "Accelerating", rest: " as pedestrian crossed." },
+      { intent: "Cruising",     rest: " after ego vehicle crossed intersection." },
+      { intent: "Decelerating", rest: " to the pedestrian near roadway." },
+    ],
+  },
+  {
+    imgId: "img2", frameId: "f2", descId: "desc2", fps: 0.7,
+    frames: Array.from({length:6}, (_,i)=>`${BASE}/case_2_f4af235555fe56e009/${i+1}.png`),
+    descriptions: [
+      { intent: "Cruising",     rest: " the road." },
+      { intent: "Decelerating", rest: " to the oncoming car." },
+      { intent: "Avoiding",     rest: " the oncoming car." },
+      { intent: "Decelerating", rest: " to the oncoming car." },
+      { intent: "Stopping",     rest: " to the intersection and open-door parked van." },
+      { intent: "Waiting",      rest: " for the new coming car to cross." },
+    ],
+  },
+  {
+    imgId: "img3", frameId: "f3", descId: "desc3", fps: 0.7,
+    frames: Array.from({length:4}, (_,i)=>`${BASE}/case_3_f50812373d0904c3a8/${i+1}.png`),
+    descriptions: [
+      { intent: "Accelerating", rest: " as the oncoming car bypasses." },
+      { intent: "Cruising",     rest: " down the street." },
+      { intent: "Avoiding",     rest: " the open-door car aside." },
+      { intent: "Avoiding",     rest: " the oncoming bus." },
+    ],
+  },
+];
+
+function startPlayer(cfg){
+  const imgEl   = document.getElementById(cfg.imgId);
+  const frameEl = document.getElementById(cfg.frameId);
+  const descEl  = document.getElementById(cfg.descId);
+  const N = cfg.frames.length;
+  cfg.frames.forEach(src => { const i = new Image(); i.src = src; });
+  let idx = 0;
+  const render = () => {
+    imgEl.src = cfg.frames[idx];
+    frameEl.textContent = `${idx+1}/${N}`;
+    const d = cfg.descriptions[idx];
+    descEl.innerHTML =
+      `<span class="step-num">${idx+1}/${N}</span>` +
+      `<span class="intent">${d.intent}</span>${d.rest}`;
+    idx = (idx + 1) % N;
+  };
+  render();
+  setInterval(render, 1000 / cfg.fps);
+}
+document.addEventListener("DOMContentLoaded", () => { cases.forEach(startPlayer); });
+</script>
+
+</body>
+</html>

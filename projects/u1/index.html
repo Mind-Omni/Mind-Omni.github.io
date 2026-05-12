@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindVLA-U1 — VLA Beats VA with Unified Streaming Architecture for Autonomous Driving</title>
+
+<!-- Bulma + Font Awesome + Inter from CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --accent:#2563eb;
+  --accent-soft:#e8efff;
+  --accent2:#059669;
+  --accent3:#d97706;
+  --accent-warm:#dc2626;
+  --ink:#1e293b;
+  --muted:#64748b;
+}
+html,body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-feature-settings:"cv02","cv03","cv04","cv11";color:var(--ink);background:#fff}
+.container.is-max-wider{max-width:1200px}
+.section{padding:2.6rem 1.2rem}
+.hero.is-light{background:#fafafa}
+
+/* ----- Hero ----- */
+.publication-title{font-size:2.05rem;font-weight:500;letter-spacing:-0.015em;line-height:1.2;margin-top:.6rem;max-width:1100px;margin-left:auto;margin-right:auto}
+.publication-title strong{font-weight:800;letter-spacing:-0.02em}
+.publication-authors{margin-top:1.4rem;font-size:1.05rem;line-height:1.55}
+.publication-authors .author-block{margin-right:.25rem}
+.publication-authors a{color:var(--accent);text-decoration:none}
+.publication-authors a:hover{text-decoration:underline}
+.affil{margin-top:.55rem;font-size:.95rem;color:#475569;line-height:1.6}
+.author-notes{margin-top:.45rem;font-size:.85rem;color:var(--muted);line-height:1.5}
+.publication-links{margin-top:1.6rem}
+.publication-links .link-block{margin:.3rem .3rem}
+.button.is-rounded.is-dark{background:#0f172a;border-color:#0f172a}
+.button.is-rounded.is-dark:hover{background:#1e293b;border-color:#1e293b}
+.tagline{
+  margin:1.7rem auto 0;max-width:1100px;
+  background:#f1f5f9;border-left:4px solid var(--accent);
+  border-radius:8px;padding:14px 20px;font-size:1.08rem;line-height:1.6;color:#0f172a
+}
+.tagline em{font-style:italic;font-weight:600}
+
+/* ----- Section captions / figures ----- */
+h2.title.is-3{font-weight:700;letter-spacing:-0.01em}
+.sec-caption{font-size:1.04rem;line-height:1.65;color:#1e293b;max-width:1050px;margin:0 auto 1.2rem;text-align:justify}
+.sec-caption a{color:var(--accent)}
+.fig-caption{font-size:.98rem;line-height:1.5;color:#475569;font-style:italic;text-align:center;max-width:1000px;margin:.6rem auto 0}
+.figure-frame{margin:0 auto;max-width:1050px}
+.figure-frame img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid #e5e7eb;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.figure-frame.tight img{border:none;box-shadow:none;border-radius:6px}
+
+/* legend pills */
+.legend{display:inline-block;font-size:.86rem;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin:0 .25rem .35rem 0}
+.legend.warn{background:#fef3c7;color:#b45309}
+.legend.green{background:#d1fae5;color:#047857}
+.legend.gray{background:#f1f5f9;color:#334155}
+
+/* ----- Radar ----- */
+/* ----- Radar (rendered from paper Figure 1) ----- */
+.radar-wrap{max-width:760px;margin:0 auto;padding:0}
+.radar-wrap img{width:100%;height:auto;display:block}
+
+/* ----- Method side-by-side ----- */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1100px;margin:0 auto}
+.two-col .card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.two-col .card h3{font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.55rem}
+.two-col .card p{font-size:.95rem;line-height:1.55;color:#334155}
+.two-col .card img{width:100%;height:auto;display:block;border-radius:6px;margin-bottom:.7rem;background:#fff}
+@media (max-width: 900px){.two-col{grid-template-columns:1fr}}
+
+/* ----- Intent CFG fan-out grid ----- */
+.cfg-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:1100px;margin:0 auto}
+.cfg-row .cell{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.cfg-row .cell img{width:100%;height:auto;display:block;border-radius:4px}
+.cfg-row .cell .cap{margin-top:.55rem;font-size:.92rem;color:#334155;text-align:center;line-height:1.5}
+.cfg-row .cell .cap b{color:var(--accent)}
+@media (max-width: 900px){.cfg-row{grid-template-columns:1fr}}
+
+/* ----- Streaming carousel ----- */
+.sc-stack{display:flex;flex-direction:column;gap:24px;max-width:1000px;margin:0 auto}
+.sc-case{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.sc-case .header{display:flex;align-items:center;gap:10px;margin-bottom:.6rem;flex-wrap:wrap}
+.sc-case .badge{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:.74rem;padding:3px 9px;border-radius:999px;letter-spacing:.04em}
+.sc-case .title-sm{font-weight:700;color:var(--ink);font-size:.95rem}
+.sc-case .frame-cnt{margin-left:auto;font-size:.8rem;color:var(--muted);font-weight:600}
+.sc-case img{width:100%;height:auto;max-height:540px;object-fit:contain;display:block;border-radius:6px;border:1px solid #e5e7eb;background:#fafafa}
+.sc-case .frame-desc{margin-top:10px;padding:10px 14px;border-radius:8px;background:#dbeafe;border-left:4px solid var(--accent);font-size:.92rem;font-weight:500;color:#1e3a8a;line-height:1.5}
+.sc-case .frame-desc .step-num{display:inline-block;color:#1e40af;font-weight:700;font-size:.78rem;margin-right:.5rem;padding:1px 8px;background:#fff;border-radius:999px;letter-spacing:.04em}
+.sc-case .frame-desc .metric{color:#047857;font-weight:700}
+
+/* ----- Long-tail scene gallery ----- */
+.scene-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:1100px;margin:0 auto}
+.scene-grid .scene{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.scene-grid .scene h4{font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:.55rem}
+.scene-grid .scene img{width:100%;height:auto;display:block;border-radius:6px;margin-bottom:8px;border:1px solid #e5e7eb}
+.scene-grid .scene .cap{font-size:.86rem;color:var(--muted);line-height:1.45}
+@media (max-width: 900px){.scene-grid{grid-template-columns:1fr}}
+
+/* ----- Tables ----- */
+.tbl-pair{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1100px;margin:0 auto}
+.tbl-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow-x:auto}
+.tbl-card h3{font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.7rem}
+.tbl-card table{width:100%;border-collapse:collapse;font-size:.92rem}
+.tbl-card th,.tbl-card td{padding:7px 9px;text-align:left;border-bottom:1px solid #f1f5f9}
+.tbl-card th{font-weight:700;color:var(--ink);border-bottom:2px solid var(--ink);font-size:.84rem;text-transform:uppercase;letter-spacing:.03em}
+.tbl-card td.num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl-card tr.section-row td{background:#f8fafc;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;padding-top:9px;padding-bottom:5px;border-bottom:1px solid #e5e7eb}
+.tbl-card tr.ours td{background:var(--accent-soft);font-weight:700;color:var(--accent)}
+.tbl-card tr.human td{background:#fef3c7;font-weight:700;color:#b45309}
+@media (max-width: 1000px){.tbl-pair{grid-template-columns:1fr}}
+
+/* ----- Decoupling callout ----- */
+.callout{
+  max-width:1050px;margin:0 auto;background:#ecfdf5;border-left:5px solid var(--accent2);
+  border-radius:10px;padding:18px 22px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start
+}
+.callout .num{font-size:1.7rem;font-weight:800;color:var(--accent2);line-height:1;white-space:nowrap}
+.callout .text{font-size:1.0rem;line-height:1.55;color:#064e3b}
+.callout .text b{color:#065f46}
+
+/* ----- MindLabel ----- */
+.ml-row{display:grid;grid-template-columns:1.0fr 0.95fr;gap:18px;max-width:1100px;margin:0 auto}
+.ml-row .cell{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.ml-row .cell img{width:100%;height:auto;display:block;border-radius:4px}
+.ml-row .cell .cap{margin-top:.5rem;font-size:.88rem;color:#475569;text-align:center;line-height:1.5}
+@media (max-width: 900px){.ml-row{grid-template-columns:1fr}}
+
+/* ----- BibTeX + Footer ----- */
+pre{background:#0f172a;color:#e2e8f0;padding:16px 20px;border-radius:10px;overflow-x:auto;font-size:.86rem;line-height:1.55}
+.footer{background:#0f172a;color:#94a3b8;text-align:center;padding:1.6rem;font-size:.85rem}
+.footer a{color:#cbd5e1}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- 1. HERO                                                       -->
+<!-- ============================================================ -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-wider has-text-centered">
+      <h1 class="publication-title"><strong>MindVLA-U1</strong>: VLA Beats VA with Unified Streaming Architecture for Autonomous Driving</h1>
+
+      <div class="publication-authors">
+        <span class="author-block"><a href="https://scholar.google.com/citations?hl=zh-CN&user=9dMnmMwAAAAJ" target="_blank" rel="noopener">Yuzhou Huang</a><sup>1,2*</sup>,</span>
+        <span class="author-block"><a href="https://benjin.me/" target="_blank" rel="noopener">Benjin Zhu</a><sup>2,3*&#9993;&starf;</sup>,</span>
+        <span class="author-block"><a href="https://scholar.google.com/citations?view_op=list_works&hl=zh-CN&hl=zh-CN&user=FNn8RlIAAAAJ" target="_blank" rel="noopener">Hengtong Lu</a><sup>2</sup>,</span>
+        <span class="author-block"><a href="https://jeixhuang.github.io/" target="_blank" rel="noopener">Victor Shea-Jay Huang</a><sup>1,2</sup>,</span>
+        <span class="author-block"><a href="https://scholar.google.com/citations?user=RPWMpyIAAAAJ&hl=zh-CN" target="_blank" rel="noopener">Haiming Zhang</a><sup>2</sup>,</span>
+        <br>
+        <span class="author-block"><a href="https://openreview.net/profile?id=%7EChen_Wei10" target="_blank" rel="noopener">Wei Chen</a><sup>2</sup>,</span>
+        <span class="author-block"><a href="https://jifengdai.org/" target="_blank" rel="noopener">Jifeng Dai</a><sup>3</sup>,</span>
+        <span class="author-block"><a href="https://ir.lixiang.com/management/yan-xie/" target="_blank" rel="noopener">Yan Xie</a><sup>2</sup>,</span>
+        <span class="author-block"><a href="https://www.ee.cuhk.edu.hk/~hsli/" target="_blank" rel="noopener">Hongsheng Li</a><sup>1&#9993;</sup></span>
+      </div>
+
+      <div class="affil">
+        <sup>1</sup>CUHK MMLab&nbsp;&nbsp;·&nbsp;&nbsp;
+        <sup>2</sup>Li&nbsp;Auto&nbsp;&nbsp;·&nbsp;&nbsp;
+        <sup>3</sup>Tsinghua University
+      </div>
+      <div class="author-notes">
+        <sup>*</sup>Equal contribution&nbsp;&nbsp;·&nbsp;&nbsp;
+        <sup>&starf;</sup>Project Lead&nbsp;&nbsp;·&nbsp;&nbsp;
+        <sup>&#9993;</sup>Corresponding author
+      </div>
+
+      <div class="publication-links">
+        <span class="link-block"><a href="#" class="external-link button is-normal is-rounded is-dark">
+          <span class="icon"><i class="ai ai-arxiv"></i><i class="fas fa-archive"></i></span><span>arXiv</span></a></span>
+        <span class="link-block"><a href="#" class="external-link button is-normal is-rounded is-dark">
+          <span class="icon"><i class="fab fa-github"></i></span><span>Code</span></a></span>
+      </div>
+
+      <p class="tagline">
+        <em>MindVLA-U1</em> is a unified streaming VLA &mdash; one backbone, one forward pass for
+        language and continuous action &mdash; that on WOD-E2E becomes the first VLA to surpass
+        experienced human drivers (8.20 RFS vs.&nbsp;8.13 GT) while preserving the natural-language
+        interface that prior VLAs trade away.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 2. ABSTRACT (removed; TLDR now carries the thesis)            -->
+<!-- ============================================================ -->
+
+<!-- ============================================================ -->
+<!-- 3. RADAR                                                      -->
+<!-- ============================================================ -->
+<section class="section hero is-light">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">AD Capability Radar</h2>
+    <p class="sec-caption has-text-centered">
+      MindVLA-U1 is the only architecture that delivers all six driving-VLA capabilities at once.
+      Vision-to-Action (VA) methods are precise on continuous control but lack semantic, temporal,
+      and language interfaces. Prior VLAs trade control precision for those interfaces. MindVLA-U1
+      keeps continuous control precision <em>and</em> exposes a measurable language&nbsp;&rarr;&nbsp;action
+      bridge, streaming temporal context, and adaptive fast/slow compute on one set of weights.
+    </p>
+
+    <figure class="radar-wrap">
+      <img src="arxiv_final_figs/Figure1_Radar.png" alt="AD capability radar (Figure 1)">
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 4. PLANNING PERFORMANCE ON WOD-E2E (HEADLINE RESULT)          -->
+<!-- ============================================================ -->
+<section class="section">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Planning Performance on WOD-E2E</h2>
+    <p class="sec-caption">
+      We report Rater Feedback Score (RFS) and ADE on Waymo Open Dataset End-to-End. On the
+      <b>validation split</b>, MindVLA-U1 surpasses experienced human drivers for the first time
+      (8.20 vs.&nbsp;8.13 GT RFS). On the <b>official test split</b>, MindVLA-U1 reaches the
+      highest reported RFS and lowest ADE among all VA/VLA methods.
+    </p>
+
+    <div class="tbl-pair">
+      <div class="tbl-card">
+        <h3>WOD-E2E Validation Split</h3>
+        <table>
+          <thead><tr><th>Method</th><th class="num">ADE 3s</th><th class="num">ADE 5s</th><th class="num">RFS</th></tr></thead>
+          <tbody>
+            <tr class="section-row"><td colspan="4">Vision-to-Action (VA)</td></tr>
+            <tr><td>VAD</td><td class="num">3.19</td><td class="num">5.81</td><td class="num">4.45</td></tr>
+            <tr><td>UniAD</td><td class="num">6.50</td><td class="num">10.81</td><td class="num">5.78</td></tr>
+            <tr><td>RAP-DINO</td><td class="num">0.97</td><td class="num">2.20</td><td class="num">7.91</td></tr>
+            <tr class="section-row"><td colspan="4">Vision-Language-Action (VLA)</td></tr>
+            <tr><td>Poutine-Base</td><td class="num">1.27</td><td class="num">2.94</td><td class="num">8.12</td></tr>
+            <tr class="human"><td>Human Driver</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">8.13</td></tr>
+            <tr class="section-row"><td colspan="4">MindVLA-U1 (Ours)</td></tr>
+            <tr><td>Base</td><td class="num">0.92</td><td class="num">2.14</td><td class="num">7.83</td></tr>
+            <tr><td>+ Intent-CFG</td><td class="num">0.86</td><td class="num">2.13</td><td class="num">7.92</td></tr>
+            <tr><td>+ MoT</td><td class="num">0.89</td><td class="num">2.11</td><td class="num">7.92</td></tr>
+            <tr class="ours"><td>+ RL</td><td class="num">1.01</td><td class="num">2.28</td><td class="num">8.20</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tbl-card">
+        <h3>WOD-E2E Test Split (official)</h3>
+        <table>
+          <thead><tr><th>Method</th><th class="num">ADE 3s</th><th class="num">ADE 5s</th><th class="num">RFS</th></tr></thead>
+          <tbody>
+            <tr class="section-row"><td colspan="4">Vision-to-Action (VA)</td></tr>
+            <tr><td>ViT-Adapter-GRU</td><td class="num">1.20</td><td class="num">2.70</td><td class="num">7.50</td></tr>
+            <tr><td>Swin-Trajectory</td><td class="num">1.21</td><td class="num">2.81</td><td class="num">7.54</td></tr>
+            <tr><td>DiffusionLTF</td><td class="num">1.36</td><td class="num">2.98</td><td class="num">7.72</td></tr>
+            <tr class="section-row"><td colspan="4">Vision-Language-Action (VLA)</td></tr>
+            <tr><td>Open-LLaMA</td><td class="num">1.31</td><td class="num">3.22</td><td class="num">7.43</td></tr>
+            <tr><td>NaiveEMMA</td><td class="num">1.32</td><td class="num">3.02</td><td class="num">7.53</td></tr>
+            <tr><td>AutoVLA</td><td class="num">1.35</td><td class="num">2.96</td><td class="num">7.56</td></tr>
+            <tr><td>dVLM-AD</td><td class="num">1.29</td><td class="num">3.02</td><td class="num">7.63</td></tr>
+            <tr><td>HMVLM</td><td class="num">1.33</td><td class="num">3.07</td><td class="num">7.74</td></tr>
+            <tr class="section-row"><td colspan="4">MindVLA-U1 (Ours)</td></tr>
+            <tr><td>Base</td><td class="num">1.16</td><td class="num">2.67</td><td class="num">7.77</td></tr>
+            <tr class="ours"><td>+ RL</td><td class="num">1.09</td><td class="num">2.66</td><td class="num">7.87</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 4. METHOD: UNIFIED BACKBONE                                   -->
+<!-- ============================================================ -->
+<section class="section hero is-light">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Unified Shared Backbone &amp; Streaming Memory</h2>
+    <p class="sec-caption">
+      MindVLA-U1 combines a <em>unified shared backbone</em> that jointly performs scene
+      understanding and continuous action generation in a single forward pass over one
+      representation, with a <em>streaming memory</em> paradigm that propagates a compact memory
+      channel across frames in whole driving sessions rather than re-attending to multi-frame video
+      chunks. To let language guide continuous action measurably and to match compute to scene
+      demand, we further develop a language-to-action route and a fast/slow execution scheme that
+      runs on dense or sparse MoT variants of this shared backbone.
+    </p>
+
+    <div class="figure-frame">
+      <img src="arxiv_final_figs/Framework6.png" alt="MindVLA-U1 unified streaming architecture overview">
+    </div>
+    <p class="fig-caption">
+      <b>Overview of MindVLA-U1.</b> A unified shared backbone decodes language and continuous
+      action from one hidden state in a single forward pass; a streaming memory channel carries
+      temporal context across frames, motion-aligned on read and updated after the pass.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 5. MoT FAST/SLOW + MEMORY DETAIL                              -->
+<!-- ============================================================ -->
+<section class="section">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Fast/Slow Execution &amp; Streaming Memory Detail</h2>
+
+    <div class="two-col">
+      <div class="card">
+        <p style="font-size:.95rem;line-height:1.55;color:#0f172a;margin:0 0 .8rem">
+          <b>What MoT brings:</b> adaptive compute from a single checkpoint &mdash; the same weights
+          run as a fast action-only path (~16 FPS, matched-VA throughput) or as a slow
+          language-then-action path, with no separate models to train or maintain.
+        </p>
+        <img src="arxiv_final_figs/Figure3_MoT.png" alt="Fast/Slow systems on Sparse MoT">
+        <p class="fig-caption" style="text-align:left;margin:.6rem 0 0">
+          <b>Fast/Slow systems on Sparse MoT.</b> Per-modality encoders feed a shared self-attention,
+          per-functionality decoders specialize the outputs. (Dashed: extension slots.)
+        </p>
+      </div>
+      <div class="card">
+        <p style="font-size:.95rem;line-height:1.55;color:#0f172a;margin:0 0 .8rem">
+          <b>What streaming memory brings:</b> long-horizon temporal consistency at constant
+          per-frame compute &mdash; smoothly evolving plans across frames with no chunk-boundary
+          discontinuities, and improved ADE at every horizon up to 25&nbsp;s.
+        </p>
+        <img src="arxiv_final_figs/MemoryBank4.png" alt="Streaming memory bank with motion-aligned tokens">
+        <p class="fig-caption" style="text-align:left;margin:.6rem 0 0">
+          <b>Streaming Memory.</b> FIFO memory channel with motion-aligned and refreshed history
+          tokens; gradients propagate across stream.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 6. INTENT-CFG                                                 -->
+<!-- ============================================================ -->
+<section class="section hero is-light">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Intent-CFG &mdash; Language Steers Continuous Action</h2>
+    <p class="sec-caption">
+      The unified backbone exposes a measurable language-to-action path. The language head
+      next-token-predicts a driving intent token, whose embedding conditions the action velocity
+      field. Training drops the intent to an unconditional token with probability 0.15, so the
+      same action tokens learn both conditional and unconditional fields; at inference, the two
+      passes are mixed by classifier-free guidance with scale 1.5. Trajectories fan out
+      systematically per intent, while the unconditional pass collapses to a near-GT default.
+    </p>
+
+    <div class="cfg-row">
+      <div class="cell">
+        <img src="arxiv_final_figs/0075c28f1f1a68c4c1c8dcf37958046b-149.png" alt="Intent-CFG with WOD-E2E 3-class intent">
+        <p class="fig-caption" style="text-align:left;margin:.6rem 0 0">
+          (a) <b>Deployed setting:</b> WOD-E2E GT 3-class intent
+          (GO_STRAIGHT / TURN_LEFT / TURN_RIGHT) + unconditional baseline.
+        </p>
+      </div>
+      <div class="cell">
+        <img src="arxiv_final_figs/0081c482170156ee7aedf36157d4ff21-149.png" alt="Intent-CFG with MindLabel 20-class intent">
+        <p class="fig-caption" style="text-align:left;margin:.6rem 0 0">
+          (b) <b>Extended:</b> MindLabel's 20-class intent vocabulary
+          (cruising, lane_keeping, following, lane_change_left/right, turning_left/right, u_turn,
+          starting, stopping, waiting, accelerating, decelerating, braking, yielding, overtaking,
+          merging, avoiding_obstacle, parking, reversing) + unconditional baseline.
+          Released as part of MindLabel; unexploited in the main-paper.
+        </p>
+      </div>
+    </div>
+
+    <p class="fig-caption" style="text-align:left;margin:1rem auto 0;max-width:1100px">
+      <b>Reading the figure.</b> Each panel shows BEV trajectories conditioned on every intent class
+      plus an unconditional baseline (<em>left</em>: overview against GT; <em>right</em>: per-intent
+      subplots). Comparing (a) the 3-class deployed setting and (b) MindLabel's 20-class extension
+      on the same scene shows that the conditioning vocabulary, not the scene, controls the modal
+      space &mdash; multi-modality is a property of the interface.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 7. STREAMING CONSISTENCY (CAROUSEL)                           -->
+<!-- ============================================================ -->
+<section class="section">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Long-Horizon Streaming Consistency</h2>
+    <p class="sec-caption">
+      We stitch consecutive clips into long-horizon sequences and overlay predictions against
+      ground-truth poses. Memory propagates across clip boundaries with motion-aware alignment;
+      planning evolves smoothly without per-chunk discontinuities. Sequence-level ADE improves at
+      every horizon (3s/5s/10s/15s/20s/25s) when memory is added.
+    </p>
+
+    <div class="sc-stack">
+      <div class="sc-case" id="sc1">
+        <div class="header">
+          <span class="badge">Case</span>
+          <span class="title-sm" id="t1">Long-horizon stitched sequence</span>
+          <span class="frame-cnt" id="f1">1/4</span>
+        </div>
+        <img id="img1" alt="Long-horizon sequence">
+        <div class="frame-desc" id="desc1">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 8. LONG-TAIL SCENE GALLERY                                    -->
+<!-- ============================================================ -->
+<section class="section hero is-light">
+  <div class="container is-max-wider">
+    <h2 class="title is-3 has-text-centered">Long-Tail Scenes</h2>
+    <p class="sec-caption">
+      WOD-E2E targets long-tail scenarios with event frequencies below 0.003%. Across daytime urban
+      and nighttime intersection scenes, MindVLA-U1 grounds its plans in scene-specific perception
+      &mdash; the same backbone produces both the 360° BEV trajectory and the natural-language
+      object-level descriptions used for VQA supervision.
+    </p>
+
+    <div class="scene-grid">
+      <div class="scene">
+        <h4>Scene A &mdash; Daytime urban</h4>
+        <img src="arxiv_final_figs/scene-a-rgb.png" alt="Scene A — front-camera panorama">
+        <img src="arxiv_final_figs/scene-a-bev.png" alt="Scene A — BEV with dreamed trajectories" style="margin-top:8px">
+        <div class="cap">Front-camera panorama (top) and BEV with intent-conditioned trajectory variants (bottom).</div>
+      </div>
+      <div class="scene">
+        <h4>Scene B &mdash; Nighttime intersection</h4>
+        <img src="arxiv_final_figs/scene-b-rgb.png" alt="Scene B — front-camera panorama">
+        <img src="arxiv_final_figs/scene-b-objects.png" alt="Scene B — object-centric annotations" style="margin-top:8px">
+        <div class="cap">Panorama (top) and object-centric annotations (bottom): 25 detected entities (11 foreground, 14 background) with natural-language descriptors.</div>
+      </div>
+    </div>
+
+    <div class="figure-frame" style="margin-top:1.4rem;max-width:1100px">
+      <img src="arxiv_final_figs/sample_1407.png" alt="Per-frame streaming inference: 6 consecutive frames">
+    </div>
+    <p class="fig-caption">
+      <b>Per-frame streaming inference.</b> Six consecutive frames: front view (top), 5-second BEV
+      trajectory (middle), and per-waypoint confidence heatmaps (bottom). Plans evolve smoothly
+      across the stream.
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER (removed)                                              -->
+<!-- ============================================================ -->
+
+<script>
+// Auto-rotating long-horizon streaming case viewer.
+// One image at a time; neutral caption (no per-frame intent labels).
+const BASE = "figs";
+const cases = [
+  { src: `${BASE}/seq0033.png`, title: "Seq 0033 — Right turn",
+    desc: "Stitched 4 clips · ADE 0.38 m · FDE 0.76 m" },
+  { src: `${BASE}/seq0035.png`, title: "Seq 0035 — Curved cruise",
+    desc: "Stitched 4 clips · ADE 0.91 m · FDE 1.90 m" },
+  { src: `${BASE}/seq0034.png`, title: "Seq 0034 — Leftward curve",
+    desc: "Stitched 4 clips · ADE 0.90 m · FDE 2.48 m" },
+  { src: `${BASE}/seq0003.png`, title: "Seq 0003 — Sharp curving maneuver",
+    desc: "Stitched 4 clips · ADE 0.90 m · FDE 0.84 m" },
+];
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Preload
+  cases.forEach(c => { const i = new Image(); i.src = c.src; });
+  const imgEl  = document.getElementById("img1");
+  const titleEl= document.getElementById("t1");
+  const cntEl  = document.getElementById("f1");
+  const descEl = document.getElementById("desc1");
+  let idx = 0;
+  const N = cases.length;
+  const render = () => {
+    const c = cases[idx];
+    imgEl.src = c.src;
+    titleEl.textContent = c.title;
+    cntEl.textContent = `${idx+1}/${N}`;
+    descEl.innerHTML =
+      `<span class="step-num">${idx+1}/${N}</span>` +
+      `<span class="metric">${c.desc}</span>`;
+    idx = (idx + 1) % N;
+  };
+  render();
+  setInterval(render, 3500);  // 3.5 s per case — these are dense long-horizon plots
+});
+</script>
+
+</body>
+</html>

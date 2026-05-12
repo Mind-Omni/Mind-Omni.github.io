@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mind-Omni</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --c1:#2563eb;        /* U1        */
+    --c2:#059669;        /* SI        */
+    --c3:#d97706;        /* DIAL      */
+    --c4:#7c3aed;        /* MindSim   */
+    --c5:#0891b2;        /* MindLabel */
+    --ink:#1e293b;
+    --muted:#64748b;
+    --content-w:980px;
+    --arrow:#94a3b8;
+    --arrow-dash:#a3b8c9;
+  }
+  html,body{background:#fff;color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-feature-settings:"cv02","cv03","cv04","cv11";margin:0}
+
+  /* ── Page uses natural block flow; navmap scrolls away with the page ── */
+  body{margin:0;min-height:100vh}
+
+  /* ── Brand row (merged into navmap area, bigger + more prominent) ── */
+  .brand-row{max-width:1200px;margin:0 auto 14px;padding:8px 0 14px;
+    text-align:center;border-bottom:1px dashed #e2e8f0}
+  .brand-title{font-weight:800;font-size:1.9rem;letter-spacing:-0.02em;
+    background:linear-gradient(90deg,#2563eb 0%,#0891b2 45%,#7c3aed 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    line-height:1.1}
+  .brand-sep{color:#94a3b8;margin:0 14px;font-weight:500;font-size:1.4rem;
+    vertical-align:0.05em}
+  .brand-affil{font-size:1.1rem;color:#334155;font-weight:600;
+    letter-spacing:-0.005em}
+
+  /* ── Top nav-map (U1 hub + 2 parallel extensions + MindSim closed-loop) ── */
+  .navmap-wrap{background:#fafafa;border-bottom:1px solid #e5e7eb;
+    padding:14px 16px 18px;
+    box-shadow:0 1px 4px rgba(0,0,0,.04);z-index:10}
+
+  /* Fixed-aspect inner canvas – boxes absolute-positioned in %, SVG overlay on top.
+     Canvas is 1200 × 420 (aspect ≈ 2.857). */
+  .navmap{position:relative;width:100%;max-width:1200px;aspect-ratio:1200/420;
+    margin:0 auto}
+  .navmap-svg{position:absolute;inset:0;width:100%;height:100%;
+    pointer-events:none;overflow:visible}
+
+  .tab{position:absolute;background:#fff;border:1.5px solid #e5e7eb;
+    border-radius:14px;padding:14px 16px;cursor:pointer;
+    text-decoration:none;color:var(--ink);
+    transition:all .18s ease-in-out;
+    box-shadow:0 1px 3px rgba(0,0,0,.04);user-select:none;
+    display:flex;flex-direction:column;justify-content:center;
+    min-height:96px;
+    box-sizing:border-box}
+  .tab:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.08);
+    color:var(--ink)}
+  .tab .tab-tag{display:block;font-family:ui-monospace,'SF Mono',Consolas,monospace;
+    font-size:0.72rem;font-weight:700;letter-spacing:.1em;color:var(--muted);
+    margin-bottom:4px;text-transform:uppercase}
+  .tab .tab-ttl{font-weight:700;font-size:1.15rem;line-height:1.2;
+    color:var(--ink)}
+  .tab .tab-sub{font-size:0.85rem;color:var(--muted);margin-top:4px;
+    line-height:1.35}
+
+  /* Positions on the 1200×420 canvas.
+     Cycle boxes 220×100; MindLabel 180×100; MindSim 240×100.
+       U1      (260..480, y 160..260)  centre (370, 210)
+       SI      (590..810, y  40..140)  centre (700,  90)
+       DIAL    (590..810, y 280..380)  centre (700, 330)
+       MindSim (940..1180, y 160..260) centre (1060,210)
+       ML      (  0..180, y 160..260)  centre ( 90, 210)                    */
+  .tab.pos-u1    {left:21.67%; top:38.10%; width:18.33%; height:23.81%}
+  .tab.pos-si    {left:49.17%; top: 9.52%; width:18.33%; height:23.81%}
+  .tab.pos-dial  {left:49.17%; top:66.67%; width:18.33%; height:23.81%}
+  .tab.pos-msim  {left:78.33%; top:38.10%; width:20.00%; height:23.81%}
+  .tab.pos-ml    {left: 0%;    top:38.10%; width:15.00%; height:23.81%}
+
+  .tab.t1{border-top:4px solid var(--c1)}
+  .tab.t2{border-top:4px solid var(--c2)}
+  .tab.t3{border-top:4px solid var(--c3)}
+  .tab.t4{border-top:4px solid var(--c4)}
+  .tab.t5{border-top:4px solid var(--c5);
+    border-left:1.5px dashed #cbd5e1;
+    border-right:1.5px dashed #cbd5e1;
+    border-bottom:1.5px dashed #cbd5e1}
+
+  .tab.is-active.t1{background:#eff5ff;border-color:var(--c1)}
+  .tab.is-active.t2{background:#ecfdf5;border-color:var(--c2)}
+  .tab.is-active.t3{background:#fffbeb;border-color:var(--c3)}
+  .tab.is-active.t4{background:#f5f3ff;border-color:var(--c4)}
+  .tab.is-active.t5{background:#ecfeff;border-color:var(--c5);
+    border-left-style:solid;border-right-style:solid;border-bottom-style:solid}
+
+  .tab.is-active.t1 .tab-tag{color:var(--c1)}
+  .tab.is-active.t2 .tab-tag{color:var(--c2)}
+  .tab.is-active.t3 .tab-tag{color:var(--c3)}
+  .tab.is-active.t4 .tab-tag{color:var(--c4)}
+  .tab.is-active.t5 .tab-tag{color:var(--c5)}
+
+  /* Responsive fallback: stack into one column on narrow screens */
+  @media (max-width:760px){
+    .navmap{aspect-ratio:auto;height:auto;display:grid;
+      grid-template-columns:1fr;gap:10px;max-width:520px}
+    .navmap-svg{display:none}
+    .tab{position:static;width:100% !important;height:auto;
+      padding:12px 14px}
+  }
+
+  /* ── Content area: natural block flow, active panel visible ─── */
+  main{position:relative;background:#fff}
+  .panel{display:none}
+  .panel.is-active{display:block}
+
+  /* iframe panels: JS resizes each iframe to its content height so the
+     whole page scrolls as one (no internal iframe scroll trap).  100vh is
+     a pre-JS fallback only. */
+  .panel.iframe-panel iframe{width:100%;height:100vh;border:0;display:block;
+    background:#fff}
+
+  /* Placeholder content panels */
+  .panel-inner{max-width:var(--content-w);margin:0 auto;padding:60px 24px;
+    text-align:center}
+  .panel-tag{display:inline-block;font-family:ui-monospace,'SF Mono',Consolas,monospace;
+    font-size:0.78rem;font-weight:700;letter-spacing:.1em;
+    padding:5px 12px;border-radius:999px;margin-bottom:14px;
+    text-transform:uppercase}
+  .panel-tag.t1{color:var(--c1);background:#e8efff}
+  .panel-tag.t3{color:var(--c3);background:#fef3c7}
+  .panel-tag.t4{color:var(--c4);background:#ede9fe}
+  .panel-title{font-size:2.2rem;font-weight:800;letter-spacing:-0.01em;
+    line-height:1.2;margin-bottom:14px;color:var(--ink)}
+  .panel-desc{font-size:1.05rem;color:#475569;line-height:1.65;
+    max-width:720px;margin:0 auto 28px}
+  .placeholder-card{margin:20px auto 0;max-width:640px;padding:36px 28px;
+    border:2px dashed #cbd5e1;border-radius:14px;background:#fafafa;
+    text-align:center}
+  .placeholder-card.t1{border-color:#bfd1ff;background:#f5f8ff}
+  .placeholder-card.t3{border-color:#fde68a;background:#fffaf0}
+  .placeholder-card.t4{border-color:#c4b5fd;background:#fbfaff}
+  .placeholder-card .ph-badge{display:inline-block;color:#fff;
+    font-weight:700;font-size:0.78rem;letter-spacing:.08em;
+    padding:4px 14px;border-radius:999px;margin-bottom:12px}
+  .placeholder-card.t1 .ph-badge{background:var(--c1)}
+  .placeholder-card.t3 .ph-badge{background:var(--c3)}
+  .placeholder-card.t4 .ph-badge{background:var(--c4)}
+  .placeholder-card .ph-title{font-weight:700;font-size:1.15rem;
+    color:var(--ink);margin-bottom:8px}
+  .placeholder-card .ph-text{color:#475569;line-height:1.6;font-size:0.98rem}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV-MAP (brand row + topology) ═══════════════ -->
+<div class="navmap-wrap">
+
+  <!-- Brand row, merged into the top of the navmap area. -->
+  <div class="brand-row">
+    <span class="brand-title">Mind-Omni</span>
+    <span class="brand-sep">—</span>
+    <span class="brand-affil">Physical Intelligence @ Li Auto</span>
+  </div>
+
+  <nav class="navmap" id="tabbar">
+
+    <!-- SVG overlay: U1 hub with one-way branches to SI (up) and DIAL (down),
+         bidirectional closed-loop PAIR OF ARCS with MindSim (one looping OVER SI,
+         one looping UNDER DIAL), dashed MindLabel feeder, and a big rounded box
+         enclosing the four connected components.
+
+         Canvas (viewBox) = 1200 × 420
+           U1      centre (370, 210)  right edge x=480
+           SI      centre (700,  90)  left  edge (590,  90)
+           DIAL    centre (700, 330)  left  edge (590, 330)
+           MindSim centre (1060,210)  left  edge x=940
+           ML      centre ( 90, 210)  right edge x=180
+           Big box: x=245..1185, y=5..415                                    -->
+    <svg class="navmap-svg" viewBox="0 0 1200 420" preserveAspectRatio="none"
+         xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <marker id="arr-solid" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="9" markerHeight="9" orient="auto-start-reverse"
+                markerUnits="userSpaceOnUse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+        </marker>
+        <marker id="arr-dashed" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="9" markerHeight="9" orient="auto-start-reverse"
+                markerUnits="userSpaceOnUse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0891b2"/>
+        </marker>
+      </defs>
+
+      <!-- Big rounded box enclosing the four connected components. -->
+      <rect x="245" y="5" width="940" height="410" rx="18" ry="18"
+            fill="none" stroke="#cbd5e1" stroke-width="1.5"
+            stroke-dasharray="8 5"
+            vector-effect="non-scaling-stroke"/>
+
+      <!-- U1 → SI (one-way).
+           End at SI's LEFT edge centre (590, 90) so the arrowhead enters SI
+           from the left and is fully visible. -->
+      <path d="M 480 190 C 540 190, 540 90, 590 90"
+            stroke="#64748b" stroke-width="2" fill="none"
+            vector-effect="non-scaling-stroke"
+            marker-end="url(#arr-solid)"/>
+
+      <!-- U1 → DIAL (one-way).
+           End at DIAL's LEFT edge centre (590, 330). -->
+      <path d="M 480 230 C 540 230, 540 330, 590 330"
+            stroke="#64748b" stroke-width="2" fill="none"
+            vector-effect="non-scaling-stroke"
+            marker-end="url(#arr-solid)"/>
+
+      <!-- U1 → MindSim : round-arc OVER Streaming Intent.
+           From U1 top-centre (370, 160) arcing up over SI to MindSim top-centre
+           (1060, 160). CPs at y=-30 keep the peak comfortably above SI's top
+           edge (y=40). -->
+      <path d="M 370 160 C 370 -30, 1060 -30, 1060 160"
+            stroke="#64748b" stroke-width="2" fill="none"
+            vector-effect="non-scaling-stroke"
+            marker-end="url(#arr-solid)"/>
+
+      <!-- MindSim → U1 : round-arc UNDER DIAL.
+           From MindSim bottom-centre (1060, 260) arcing down under DIAL to U1
+           bottom-centre (370, 260). CPs at y=450 keep the trough comfortably
+           below DIAL's bottom edge (y=380). -->
+      <path d="M 1060 260 C 1060 450, 370 450, 370 260"
+            stroke="#64748b" stroke-width="2" fill="none"
+            vector-effect="non-scaling-stroke"
+            marker-end="url(#arr-solid)"/>
+
+      <!-- MindLabel → left edge of the big box (dashed teal, feeds all). -->
+      <path d="M 180 210 L 245 210"
+            stroke="#0891b2" stroke-width="2" fill="none"
+            stroke-dasharray="7 5"
+            vector-effect="non-scaling-stroke"
+            marker-end="url(#arr-dashed)"/>
+    </svg>
+
+    <!-- Clickable boxes (absolute-positioned over the SVG) -->
+    <a class="tab t1 pos-u1 is-active" data-target="panel-u1">
+      <span class="tab-tag">Unified VLA</span>
+      <span class="tab-ttl">MindVLA-U1</span>
+      <span class="tab-sub">A unified driving VLA</span>
+    </a>
+
+    <a class="tab t2 pos-si" data-target="panel-intent">
+      <span class="tab-tag">Intent-control</span>
+      <span class="tab-ttl">Streaming Intent</span>
+      <span class="tab-sub">Action emergence from streaming intent</span>
+    </a>
+
+    <a class="tab t3 pos-dial" data-target="panel-rl">
+      <span class="tab-tag">Multi-modal RL</span>
+      <span class="tab-ttl">DIAL</span>
+      <span class="tab-sub">Driving-Intent-Amplified RL</span>
+    </a>
+
+    <a class="tab t4 pos-msim" data-target="panel-msim">
+      <span class="tab-tag">Closed-loop training</span>
+      <span class="tab-ttl">MindSim</span>
+      <span class="tab-sub">Controllable sim for closed-loop VLA</span>
+    </a>
+
+    <a class="tab t5 pos-ml" data-target="panel-mindlabel">
+      <span class="tab-tag">Data engine</span>
+      <span class="tab-ttl">MindLabel</span>
+      <span class="tab-sub">Omniscient driving data engine</span>
+    </a>
+
+  </nav>
+</div>
+
+<!-- ═══════════════ PANELS ═══════════════ -->
+<main>
+
+  <!-- ── U1: full project page embedded ── -->
+  <section class="panel is-active iframe-panel" id="panel-u1">
+    <iframe
+      src="projects/u1/index.html"
+      title="MindVLA-U1 project page"
+      loading="lazy"></iframe>
+  </section>
+
+  <!-- ── Streaming Intent: full project page embedded ── -->
+  <section class="panel iframe-panel" id="panel-intent">
+    <iframe
+      src="projects/intent/index.html"
+      title="Streaming Intent project page"
+      loading="lazy"></iframe>
+  </section>
+
+  <!-- ── DIAL: full project page embedded ── -->
+  <section class="panel iframe-panel" id="panel-rl">
+    <iframe
+      src="projects/dial/index.html"
+      title="DIAL project page"
+      loading="lazy"></iframe>
+  </section>
+
+  <!-- ── MindSim placeholder ── -->
+  <section class="panel" id="panel-msim">
+    <div class="panel-inner">
+      <span class="panel-tag t4">Closed-loop</span>
+      <h1 class="panel-title">MindSim</h1>
+      <p class="panel-desc">
+        Controllable multi-agent trajectory generation in an occupancy world model &mdash;
+        a concrete step toward closed-loop VLA training.
+      </p>
+      <div class="placeholder-card t4">
+        <span class="ph-badge">PROJECT PAGE</span>
+        <p class="ph-title">Coming soon.</p>
+        <p class="ph-text">
+          The closed-loop simulation component of Mind-Omni is in active development.
+          Stay tuned.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MindLabel: full project page embedded ── -->
+  <section class="panel iframe-panel" id="panel-mindlabel">
+    <iframe
+      src="projects/mindlabel/index.html"
+      title="MindLabel project page"
+      loading="lazy"></iframe>
+  </section>
+
+</main>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs    = document.querySelectorAll('#tabbar .tab');
+    const panels  = document.querySelectorAll('main .panel');
+    const iframes = document.querySelectorAll('.panel.iframe-panel iframe');
+
+    // Resize an iframe so its body fits without internal scrolling.
+    // All embedded project pages are same-origin, so contentDocument works.
+    function sizeIframe(iframe){
+      try{
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        if (!doc || !doc.body) return;
+        const h = Math.max(
+          doc.body.scrollHeight || 0,
+          doc.documentElement ? doc.documentElement.scrollHeight : 0
+        );
+        if (h > 0) iframe.style.height = h + 'px';
+      } catch(_e){ /* cross-origin — leave 100vh fallback */ }
+    }
+
+    // Size on load; also cover the already-loaded case (cached etc.).
+    iframes.forEach(iframe => {
+      iframe.addEventListener('load', () => sizeIframe(iframe));
+      try{
+        if (iframe.contentDocument &&
+            iframe.contentDocument.readyState === 'complete'){
+          sizeIframe(iframe);
+        }
+      } catch(_e){}
+    });
+
+    // Re-size on window resize (responsive inner layouts change scrollHeight).
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => iframes.forEach(sizeIframe), 150);
+    });
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', e => {
+        e.preventDefault();
+        const target = tab.dataset.target;
+        tabs.forEach(t => t.classList.remove('is-active'));
+        panels.forEach(p => p.classList.remove('is-active'));
+        tab.classList.add('is-active');
+        const panel = document.getElementById(target);
+        if (panel){
+          panel.classList.add('is-active');
+          // Recompute the iframe height now that the panel is visible
+          // (display:none panels sometimes report a stale scrollHeight).
+          const iframe = panel.querySelector('iframe');
+          if (iframe) sizeIframe(iframe);
+        }
+        // Reset outer scroll so navmap + new project top render together.
+        window.scrollTo({top: 0, behavior: 'instant'});
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
