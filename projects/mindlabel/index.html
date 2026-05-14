@@ -81,13 +81,22 @@
 
   .cot-hd-sec{font-weight:700;font-size:1.0rem;color:var(--ink);
     margin:14px 0 10px}
-  .cot-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  @media (max-width:720px){.cot-grid{grid-template-columns:1fr}}
+  .cot-chain{display:flex;flex-direction:column;gap:6px;align-items:stretch}
   .cot-item{padding:10px 12px;background:#f8fafc;
     border-left:3px solid var(--accent);border-radius:6px}
   .cot-item .cot-hd{font-weight:700;color:var(--accent);font-size:0.88rem;
     letter-spacing:.01em;margin-bottom:3px}
   .cot-item .cot-tx{font-size:0.94rem;color:#334155;line-height:1.55}
+  .cot-arrow{display:flex;align-items:center;justify-content:center;
+    height:22px;color:var(--accent);font-size:1.5rem;line-height:1;
+    font-weight:700}
+  .cot-traj{margin:4px auto 0;max-width:55%;text-align:center;
+    background:#fff;border:1px solid #e5e7eb;border-radius:8px;
+    padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .cot-traj img{width:100%;display:block;border-radius:6px}
+  .cot-traj .cot-traj-cap{margin-top:6px;font-size:0.88rem;color:#475569;
+    font-style:italic;line-height:1.45}
+  @media (max-width:720px){.cot-traj{max-width:90%}}
 
   .qa-hd{font-weight:700;font-size:1.0rem;color:var(--ink);
     margin:14px 0 10px}
@@ -215,7 +224,7 @@
 
         <!-- 4-step CoT -->
         <div class="cot-hd-sec">4-step chain-of-thought</div>
-        <div class="cot-grid">
+        <div class="cot-chain">
           <div class="cot-item">
             <div class="cot-hd">① Perceive</div>
             <div class="cot-tx">
@@ -226,6 +235,7 @@
               both sides of the street.
             </div>
           </div>
+          <div class="cot-arrow" aria-hidden="true">&#x2193;</div>
           <div class="cot-item">
             <div class="cot-hd">② Predict</div>
             <div class="cot-tx">
@@ -235,6 +245,7 @@
               in the intersection.
             </div>
           </div>
+          <div class="cot-arrow" aria-hidden="true">&#x2193;</div>
           <div class="cot-item">
             <div class="cot-hd">③ Judge</div>
             <div class="cot-tx">
@@ -244,6 +255,7 @@
               <em>Low to Medium</em>.
             </div>
           </div>
+          <div class="cot-arrow" aria-hidden="true">&#x2193;</div>
           <div class="cot-item">
             <div class="cot-hd">④ Plan</div>
             <div class="cot-tx">
@@ -251,6 +263,15 @@
               parked vehicle and curve. (2) Steer left to navigate the road
               curvature and avoid the parked sedan. (3) Monitor the
               intersection for any emerging cross-traffic or pedestrians.
+            </div>
+          </div>
+          <div class="cot-arrow" aria-hidden="true">&#x2193;</div>
+          <div class="cot-traj">
+            <img src="figs/example/intersection_turnleft.png"
+                 alt="Resulting trajectory demonstration: turning left at the intersection">
+            <div class="cot-traj-cap">
+              Resulting planned trajectory &mdash; the ego vehicle decelerates
+              and turns left at the intersection.
             </div>
           </div>
         </div>
